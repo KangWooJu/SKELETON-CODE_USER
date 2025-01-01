@@ -24,10 +24,16 @@ public class User {
     @Column(name="user_nickname",nullable = false,unique = true)
     private String nickname; // 서비스 닉네임
 
+    @Column(name="user_role",nullable = false)
+    private String role;
+
+
+
     @Builder
-    public User(String username,String password,String nickname){
+    public User(String username,String password,String nickname,String role){
         this.username = username;
         this.password = password;
         this.nickname = nickname;
+        this.role = role;
     }
 }
