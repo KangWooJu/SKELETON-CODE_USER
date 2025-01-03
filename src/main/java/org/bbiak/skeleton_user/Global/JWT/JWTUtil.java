@@ -63,7 +63,7 @@ public class JWTUtil {
         // before(new Date()) : 만료시간이 현재시간보다 이전인지 확인하기
     }
 
-    public String createJwt(String username,String role,Long expiredMs){
+    public String createJwt(String category,String username,String role,Long expiredMs){
 
         // 1. JWT Claim에 정보 추가 ( Username , Role )
         // 2. 현재 시간을 기준으로 발행시간 설정 ( issuedAt() )
@@ -71,6 +71,7 @@ public class JWTUtil {
         // 4. secretKey에 사인 저장 ( 필수 ! )
         // 4. JWT를 최종적으로 직렬화하여 문자열로 반환하기 ( compact() )
         return Jwts.builder()
+                .claim("category",category) // 토큰의 종류 : Access or Refresh
                 .claim("username",username)
                 .claim("role",role)
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -79,16 +80,12 @@ public class JWTUtil {
                 .compact();
     }
 
-    /*
-    // JWT의 시그니쳐를 확인하는 메소드
-    public boolean isValidSignature(String token){
-        try{
-            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaims(jwt);
-
-        } catch ( JwtException e){
-            return false;
-        }
+    public String getCategory(String token){
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("category",String.class);
     }
-
-     */
 }
