@@ -18,6 +18,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    // User 생성 메소드
+    @Transactional
     public SignUpResponse signUp(SignUpRequest signUpRequest) throws RuntimeException{
 
         if(userRepository.findByUsername(signUpRequest.getUsername()).isPresent()){
@@ -36,10 +38,12 @@ public class UserService {
 
         String encodedPassword = bCryptPasswordEncoder.encode(signUpRequest.getPassword()); // 비밀번호 암호화하기
 
+        // 빌더 패턴으로 User 정보 save
         User user = User.builder()
                 .nickname(signUpRequest.getNickname())
                 .password(encodedPassword)
                 .username(signUpRequest.getUsername())
+                .role("ROLE_ADMIN")
                 .build();
 
         User savedUser = userRepository.save(user);
@@ -51,7 +55,5 @@ public class UserService {
                 .build();
 
     }
-
-
 
 }

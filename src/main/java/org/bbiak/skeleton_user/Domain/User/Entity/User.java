@@ -24,8 +24,8 @@ public class User {
     @Column(name="user_nickname",nullable = false,unique = true)
     private String nickname; // 서비스 닉네임
 
-    @Column(name="user_role",nullable = false)
-    private String role;
+    @Column(name="user_role")
+    private String role; // 권한 부여를 위한 필드
 
 
 
