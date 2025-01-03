@@ -2,10 +2,13 @@ package org.bbiak.skeleton_user.Global.Security.Filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.bbiak.skeleton_user.Domain.User.Entity.CustomUserDetails;
+import org.bbiak.skeleton_user.Domain.User.Entity.User;
 import org.bbiak.skeleton_user.Global.JWT.JWTUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -13,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
@@ -21,6 +25,7 @@ import java.util.*;
 
 
 @Data
+@Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
@@ -71,8 +76,33 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 맨 처음 권한을 가져오기
 
         String role = auth.getAuthority();
-        String token = jwtUtil.createJwt(username,role,60*60*10L); // 추후 수정
-        response.addHeader("Authorization","Bearer " + token);
+        String access = jwtUtil.createJwt("access",username,role,600000L);
+        String refresh = jwtUtil.createJwt("refresh",username,role,86400000L);
+
+        // SecurityContext에 이미 인증 정보가 등록되어 있는지 확인 -> 첫 로그인일 경우 컨테이너에 등록
+        Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
+        if (existingAuth == null || !existingAuth.isAuthenticated()) {
+            log.info("SecurityContext에 인증 정보를 등록합니다.");
+
+            // SecurityContext에 인증 정보 등록
+            User user = User.builder()
+                    .username(username)
+                    .password("temppassword") // 실제 비밀번호는 저장하지 않음
+                    .role(role)
+                    .nickname("tempNickname")
+                    .build();
+
+            CustomUserDetails newCustomUserDetails = new CustomUserDetails(user);
+            Authentication authToken = new UsernamePasswordAuthenticationToken(
+                    newCustomUserDetails, null, newCustomUserDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+        } else {
+            log.info("SecurityContext에 이미 인증 정보가 등록되어 있습니다.");
+        }
+
+
+        response.setHeader("access",access); // 헤더에 access Token 추가 ( Authorization 으로 Bearer를 감싸서 보내기 )
+        response.addCookie(createCookie("refresh",refresh)); // 쿠키에 refresh 토큰 생성
     }
 
     //로그인 실패시 실행하는 메소드
@@ -82,5 +112,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                                               AuthenticationException failed) {
 
         response.setStatus(401);
+    }
+
+    private Cookie createCookie(String key,String value){
+
+        Cookie cookie = new Cookie(key,value);
+        cookie.setMaxAge(24*60*60); // 쿠키 생명주기 설정
+        cookie.setHttpOnly(true);
+
+        return cookie;
     }
 }
