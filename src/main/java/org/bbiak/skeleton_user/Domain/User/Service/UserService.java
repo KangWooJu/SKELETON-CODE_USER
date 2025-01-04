@@ -7,9 +7,13 @@ import org.bbiak.skeleton_user.Domain.User.Entity.User;
 import org.bbiak.skeleton_user.Domain.User.Repository.UserRepository;
 import org.bbiak.skeleton_user.Global.Common.code.ErrorCode;
 import org.bbiak.skeleton_user.Global.Exception.CustomException;
+import org.springframework.http.HttpRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.net.http.HttpResponse;
 
 @Data
 @Service

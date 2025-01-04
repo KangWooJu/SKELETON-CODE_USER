@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.bbiak.skeleton_user.Domain.User.Entity.CustomUserDetails;
 import org.bbiak.skeleton_user.Domain.User.Entity.User;
 import org.bbiak.skeleton_user.Global.JWT.JWTUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,7 +30,9 @@ import java.util.*;
 @Slf4j
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
+
     private final AuthenticationManager authenticationManager;
+
     private final JWTUtil jwtUtil;
 
     @Override
@@ -113,6 +117,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         response.setStatus(401);
     }
+
 
     private Cookie createCookie(String key,String value){
 

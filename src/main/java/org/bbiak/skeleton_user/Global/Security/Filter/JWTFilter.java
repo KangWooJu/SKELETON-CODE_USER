@@ -31,55 +31,7 @@ public class JWTFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        /*
-        String accessToken = request.getHeader("access");
 
-        if(accessToken==null){
-            log.info("첫 로그인 실행");
-            filterChain.doFilter(request,response);
-            return;
-        }
-
-        try{
-            jwtUtil.isExpired(accessToken);
-        } catch ( ExpiredJwtException e){
-
-            PrintWriter writer = response.getWriter();
-            writer.print("Access Token이 만료되었습니다.");
-
-            // Response의 상태를 세팅
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-        String category = jwtUtil.getCategory(accessToken);
-        log.info("Header 정보 추출 : "+category);
-
-        if(category !="access"){
-
-            PrintWriter writer = response.getWriter();
-            writer.print("해당 토큰은 Access 토큰이 아닙니다.");
-
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-
-        if(jwtUtil.isExpired(accessToken)){
-            log.info("Token 유지시간이 종료되었습니다. ( 파기 )");
-            filterChain.doFilter(request,response);
-            return;
-        }
-
-
-        String username = jwtUtil.getUsername(accessToken);
-        String role = jwtUtil.getRole(accessToken);
-
-        log.info("username : " + username);
-        log.info("role : " + role);
-
-
-         */
         // 헤더에서 access키에 담긴 토큰을 꺼냄
         String accessToken = request.getHeader("access");
 

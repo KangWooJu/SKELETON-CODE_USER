@@ -69,7 +69,7 @@ public class SecurityConfig {
                 .httpBasic((auth)->auth.disable()); // http Basic 인증사용 X
         http
                 .authorizeHttpRequests((auth)->auth
-                        .requestMatchers("/login","/signup").permitAll()
+                        .requestMatchers("/login","/signup","/reissue").permitAll()
                         .anyRequest().authenticated()); // 기본 설정 : 로그인 , 회원 가입 페이지만 가능하게 설정
 
         // 필터 순서 : JWTFilter -> LoginFilter -> UsernamePasswordAuthenticationFilter
