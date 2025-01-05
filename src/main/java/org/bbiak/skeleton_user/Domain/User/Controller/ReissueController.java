@@ -46,6 +46,12 @@ public class ReissueController {
            String newAccessToken = reissueTokenResponse.getAccess();
            String newRefreshToken = reissueTokenResponse.getRefresh();
 
+           reissueService.deleteRefresh(refresh); // refresh 토큰을 제거함에 동시에 재생성
+
+           String username = jwtUtil.getUsername(refresh);
+           String role = jwtUtil.getRole(refresh);
+
+           reissueService.addRefreshEntity(username,newRefreshToken,86400000L); // 새로운 refresh 토큰 저장하기
 
            response.setHeader("access",newAccessToken);
            response.addCookie(reissueService.createCookie("refresh",newRefreshToken));

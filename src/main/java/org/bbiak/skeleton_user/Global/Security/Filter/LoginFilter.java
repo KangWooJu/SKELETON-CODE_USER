@@ -5,13 +5,15 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.bbiak.skeleton_user.Domain.User.Entity.CustomUserDetails;
+import org.bbiak.skeleton_user.Domain.User.Entity.Refresh;
 import org.bbiak.skeleton_user.Domain.User.Entity.User;
+import org.bbiak.skeleton_user.Domain.User.Repository.RefreshRepository;
 import org.bbiak.skeleton_user.Global.JWT.JWTUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,12 +30,15 @@ import java.util.*;
 
 @Data
 @Slf4j
+@AllArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 
     private final AuthenticationManager authenticationManager;
 
     private final JWTUtil jwtUtil;
+
+    private final RefreshRepository refreshRepository;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
@@ -104,9 +109,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             log.info("SecurityContext에 이미 인증 정보가 등록되어 있습니다.");
         }
 
+        addRefresh(username,refresh,86400000L); // refresh 토큰 정보를 데이터베이스에 저장
 
         response.setHeader("access",access); // 헤더에 access Token 추가 ( Authorization 으로 Bearer를 감싸서 보내기 )
         response.addCookie(createCookie("refresh",refresh)); // 쿠키에 refresh 토큰 생성
+        response.setStatus(HttpStatus.OK.value()); // 200 응답을 Client에 보내주기
     }
 
     //로그인 실패시 실행하는 메소드
@@ -127,4 +134,19 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         return cookie;
     }
+
+    // Refresh 토큰에 대한 정보를 데이터베이스에 저장하는 로직
+    private void addRefresh(String username,String refresh,Long expiredMS){
+
+        Date date = new Date(System.currentTimeMillis()+expiredMS);
+
+        Refresh refreshEntity = Refresh.builder()
+                .username(username)
+                .refresh(refresh)
+                .expiration(date.toString())
+                .build();
+
+        refreshRepository.save(refreshEntity);
+    }
+
 }

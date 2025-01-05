@@ -1,10 +1,11 @@
 package org.bbiak.skeleton_user.Global.Security.Config;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import org.bbiak.skeleton_user.Domain.User.Repository.RefreshRepository;
 import org.bbiak.skeleton_user.Global.JWT.JWTUtil;
+import org.bbiak.skeleton_user.Global.Security.Filter.CustomLogoutFilter;
 import org.bbiak.skeleton_user.Global.Security.Filter.JWTFilter;
 import org.bbiak.skeleton_user.Global.Security.Filter.LoginFilter;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -25,11 +27,16 @@ import java.util.Collections;
 @Configuration
 @EnableWebSecurity
 @Data
+@AllArgsConstructor
 public class SecurityConfig {
 
     //AuthenticationManager Bean 등록
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
+
+
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
 
@@ -73,11 +80,14 @@ public class SecurityConfig {
                         .anyRequest().authenticated()); // 기본 설정 : 로그인 , 회원 가입 페이지만 가능하게 설정
 
         // 필터 순서 : JWTFilter -> LoginFilter -> UsernamePasswordAuthenticationFilter
+        // 강의 보기
+        http
+                .addFilterBefore(new CustomLogoutFilter(jwtUtil,refreshRepository), LogoutFilter.class);
         http
                 .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 
         http
-                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtUtil)
+                .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration),jwtUtil,refreshRepository)
                         , UsernamePasswordAuthenticationFilter.class); // 필터추가1 : usernamePasswordAuthenticationFilter
 
 
