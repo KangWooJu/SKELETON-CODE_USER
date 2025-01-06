@@ -6,10 +6,7 @@ import org.bbiak.skeleton_user.Domain.User.DTO.Request.SignUpRequest;
 import org.bbiak.skeleton_user.Domain.User.DTO.Response.SignUpResponse;
 import org.bbiak.skeleton_user.Domain.User.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 
@@ -30,4 +27,12 @@ public class SignController {
     public String tests(){
         return "testGood for Authentication";
     }
+
+    /* 회원탈퇴 구현예정 
+    @DeleteMapping("/signout")
+    public ResponseEntity<> signOut(){
+        return ResponseEntity.status(HttpStatus.)
+    }
+
+     */
 }
