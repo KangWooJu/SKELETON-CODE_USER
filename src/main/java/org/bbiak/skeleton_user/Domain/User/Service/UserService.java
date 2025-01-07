@@ -5,15 +5,11 @@ import org.bbiak.skeleton_user.Domain.User.DTO.Request.SignUpRequest;
 import org.bbiak.skeleton_user.Domain.User.DTO.Response.SignUpResponse;
 import org.bbiak.skeleton_user.Domain.User.Entity.User;
 import org.bbiak.skeleton_user.Domain.User.Repository.UserRepository;
-import org.bbiak.skeleton_user.Global.Common.code.ErrorCode;
 import org.bbiak.skeleton_user.Global.Exception.CustomException;
-import org.springframework.http.HttpRequest;
-import org.springframework.http.ResponseEntity;
+import org.bbiak.skeleton_user.Global.JWT.JWTUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.net.http.HttpResponse;
 
 @Data
 @Service
@@ -21,6 +17,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JWTUtil jwtUtil;
 
     // User 생성 메소드
     @Transactional
@@ -58,6 +55,20 @@ public class UserService {
                 .username(savedUser.getUsername())
                 .build();
 
+    }
+
+    // 유저 정보 삭제 ( 회원 탈퇴 ) 메소드
+    @Transactional
+    public String signOut(String access){
+
+        String username = jwtUtil.getUsername(access);
+        userRepository.findByUsername(username)
+                .map(user->{
+                    userRepository.delete(user);
+                    return "DB에서 유저 정보를 삭제하였습니다.";
+                })
+                .orElse("유저 정보를 찾을 수 없습니다.");
+        return "Deleted OK";
     }
 
 }
