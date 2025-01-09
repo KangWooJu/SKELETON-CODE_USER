@@ -43,15 +43,27 @@ public class CustomLogoutFilter extends GenericFilterBean {
         String requestURI = request.getRequestURI();
         String requestMethod = request.getMethod();
 
-        // URI 와 Method 검증
-        if(!requestURI.matches("^\\/logout$")&&(!requestMethod.equals("POST"))){
+        // URI 검증
+        if(!requestURI.matches("^\\/logout$")){
 
             chain.doFilter(request,response);
             return;
         }
+        // method 검증
+        if(!requestMethod.equals("POST")){
+
+            chain.doFilter(request,response);
+            return;
+
+        }
         // refresh 토큰 받아오기
         String refresh = null;
         Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            log.info("Cookies가 비어 있습니다.");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
         for (Cookie cookie : cookies) {
 
             if (cookie.getName().equals("refresh")) {
