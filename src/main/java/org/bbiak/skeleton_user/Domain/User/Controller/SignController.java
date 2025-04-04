@@ -27,11 +27,12 @@ public class SignController {
         return "testGood for Authentication";
     }
 
-
     @DeleteMapping("/signout")
     public ResponseEntity<?> signOut(@RequestHeader("access")String access){
         userService.signOut(access);
         return ResponseEntity.ok("User 정보가 삭제되었습니다.");
     }
+
+
 
 }
