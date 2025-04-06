@@ -30,7 +30,7 @@ public class SignController {
     @DeleteMapping("/signout")
     public ResponseEntity<?> signOut(@RequestHeader("access")String access){
         userService.signOut(access);
-        return ResponseEntity.ok("User 정보가 삭제되었습니다.");
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 

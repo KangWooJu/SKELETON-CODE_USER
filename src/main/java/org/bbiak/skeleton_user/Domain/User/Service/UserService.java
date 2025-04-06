@@ -1,6 +1,8 @@
 package org.bbiak.skeleton_user.Domain.User.Service;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.bbiak.skeleton_user.Domain.User.DTO.Request.NameDuplicationRequest;
 import org.bbiak.skeleton_user.Domain.User.DTO.Request.SignUpRequest;
 import org.bbiak.skeleton_user.Domain.User.DTO.Response.SignUpResponse;
 import org.bbiak.skeleton_user.Domain.User.Entity.User;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Data
+@Slf4j
 @Service
 public class UserService {
 
@@ -69,6 +72,18 @@ public class UserService {
                 })
                 .orElse("유저 정보를 찾을 수 없습니다.");
         return "Deleted OK";
+    }
+
+    public String checkDupication(NameDuplicationRequest nameDuplicationRequest){
+
+        String username = nameDuplicationRequest.getName();
+        userRepository.findByUsername(username)
+                      .ifPresent(user -> {
+                        throw new UsernameAlreadyException(username); // 커스텀 예외 생성 필요
+                      });
+
+
+        return
     }
 
 }
